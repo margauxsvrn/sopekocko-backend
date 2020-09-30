@@ -5,8 +5,8 @@ const mongoose = require('mongoose');
 const path = require('path');
 require('dotenv').config()
 
-// const stuffRoutes = require('./routes/stuff');
-// const userRoutes = require('./routes/user');
+const sauceRoutes = require('./routes/sauce');
+const userRoutes = require('./routes/user');
 
 
 // Je connecte la base de donnée MongoDB 
@@ -28,16 +28,19 @@ app.use((req, res, next) => {
     next();
 });
 
+// J'indique à Express qu'il faut gérer la ressource images de manière statique (un sous-répertoire de notre répertoire de base, __dirname ) à chaque fois qu'elle reçoit une requête vers la route /images.
+
+app.use('/images', express.static(path.join(__dirname, 'images')));
 
 // Je défini la fonction json comme middleware global pour l'application
 
 app.use(bodyParser.json());
 
 
-// J'enregistre le routeur pour toutes les demandes faites vers /api/stuff
+// J'enregistre le routeur pour toutes les demandes faites vers /api/sauces
 
-// app.use('/api/stuff', stuffRoutes);
-// app.use('/api/auth', userRoutes);
+app.use('/api/sauces', sauceRoutes);
+app.use('/api/auth', userRoutes);
 
 
 
