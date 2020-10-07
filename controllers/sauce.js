@@ -24,7 +24,7 @@ exports.createSauce = (req, res, next) => {
 };
 
 
-// Méthode POST pour liker ou disliker
+// // Méthode POST pour liker ou disliker
 
 exports.definedStatusSauce = (req, res, next) => {
     const sauceObject = JSON.parse(req.body.sauce);

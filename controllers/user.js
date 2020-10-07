@@ -6,19 +6,26 @@ const User = require('../models/User');
 
 // Il s'agit d'une fonction asynchrone qui renvoie une Promise dans laquelle nous recevons le hash généré
 
-// Nous créons un utilisateur et l'enregistrons dans la base de données, en renvoyant une réponse de réussite en cas de succès, et des erreurs avec le code d'erreur en cas d'échec
+// Nous créons un utilisateur et l'enregistrons dans la base de données, en renvoyant une réponse de réussite en cas de succès, et des erreurs avec le code d'erreur en cas d'échec.
+// La fonction User.updateOne permets de récupérer l'id renvoyer par la BDD et de le sauvegarder dans la BDD
 
 exports.signup = (req, res, next) => {
     bcrypt.hash(req.body.password, 10)
         .then(hash => {
             const user = new User({
                 email: req.body.email,
-                password: hash,
-                userId: hash
+                password: hash
             });
-            user.save()
-                .then(() => res.status(201).json({ message: 'Utilisateur créé !' }))
-                .catch(error => res.status(400).json({ error }));
+            user.save((err, user) => {
+                if (err) {
+                    return res.status(500).json({ error: err });
+                } else {
+                    User.updateOne({ email: req.body.email }, { userId: user.id }).then(result => {
+                        return res.status(201).json({ message: 'Utilisateur créé !' });
+                    })
+                }
+
+            });
         })
         .catch(error => res.status(500).json({ error }));
 };
@@ -33,25 +40,25 @@ exports.signup = (req, res, next) => {
 
 exports.login = (req, res, next) => {
     User.findOne({ email: req.body.email })
-      .then(user => {
-        if (!user) {
-          return res.status(401).json({ error: 'Utilisateur non trouvé !' });
-        }
-        bcrypt.compare(req.body.password, user.password)
-          .then(valid => {
-            if (!valid) {
-              return res.status(401).json({ error: 'Mot de passe incorrect !' });
+        .then(user => {
+            if (!user) {
+                return res.status(401).json({ error: 'Utilisateur non trouvé !' });
             }
-            res.status(200).json({
-              userId: user._id,
-              token: jwt.sign(
-                { userId: user._id },
-                'RANDOM_TOKEN_SECRET',
-                { expiresIn: '24h' }
-              )
-            });
-          })
-          .catch(error => res.status(500).json({ error }));
-      })
-      .catch(error => res.status(500).json({ error }));
-  };
+            bcrypt.compare(req.body.password, user.password)
+                .then(valid => {
+                    if (!valid) {
+                        return res.status(401).json({ error: 'Mot de passe incorrect !' });
+                    }
+                    res.status(200).json({
+                        userId: user._id,
+                        token: jwt.sign(
+                            { userId: user._id },
+                            'RANDOM_TOKEN_SECRET',
+                            { expiresIn: '24h' }
+                        )
+                    });
+                })
+                .catch(error => res.status(500).json({ error }));
+        })
+        .catch(error => res.status(500).json({ error }));
+};
