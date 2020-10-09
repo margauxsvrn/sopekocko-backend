@@ -1,9 +1,15 @@
+Informations à prendre en compte
+
 Modification à faire dans le fichier sauces.service.ts (front-end => src => app => services)
 
 Ligne 120 
-Modifier => like: like ? 1 : 0 // Par :
+Modifier :
+ like: like ? 1 : 0 
+Par :
 action: like ? 'addLike' : 'removeLike'
 
 Ligne 139
-Modifier => like: dislike ? -1 : 0 // Par :
+Modifier :
+ like: dislike ? -1 : 0 
+Par :
 action: dislike ? 'addDislike' : 'removeDislike'
