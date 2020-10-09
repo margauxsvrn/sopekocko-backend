@@ -6,10 +6,10 @@ Ligne 120
 Modifier :
  like: like ? 1 : 0 
 Par :
-action: like ? 'addLike' : 'removeLike'
+ action: like ? 'addLike' : 'removeLike'
 
 Ligne 139
 Modifier :
  like: dislike ? -1 : 0 
 Par :
-action: dislike ? 'addDislike' : 'removeDislike'
+ action: dislike ? 'addDislike' : 'removeDislike'
