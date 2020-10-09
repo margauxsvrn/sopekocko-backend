@@ -3,11 +3,16 @@ const app = express();
 const bodyParser = require('body-parser');
 const mongoose = require('mongoose');
 const path = require('path');
+const helmet = require('helmet');
+
+// Je sécurise mes données sensibles en les enregistrant dans un fichier .env qui ne sera pas envoyé
 require('dotenv').config()
 
 const sauceRoutes = require('./routes/sauce');
 const userRoutes = require('./routes/user');
 
+// Installation et utilisation de Helmet qui configure de manière appropriée des en-têtes HTTP liés à la sécurité
+app.use(helmet());
 
 // Je connecte la base de donnée MongoDB 
 

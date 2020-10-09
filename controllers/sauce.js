@@ -27,14 +27,31 @@ exports.createSauce = (req, res, next) => {
 // // Méthode POST pour liker ou disliker
 
 exports.definedStatusSauce = (req, res, next) => {
-    const sauceObject = JSON.parse(req.body.sauce);
-    delete sauceObject._id;
-    const sauce = new Sauce({
-        ...sauceObject, // L'opérateur spread ... est utilisé pour faire une copie de tous les éléments de sauceObject
-        imageUrl: `${req.protocol}://${req.get('host')}/images/${req.file.filename}`
-    });
-    sauce.save() // Méthode save() qui enregistre dans la base de données.
-        .then(() => res.status(201).json({ message: 'Objet enregistré !' }))
+    let updateObject;
+
+    if (req.body.action === 'addLike') {
+        updateObject = {
+            $inc: { likes: 1 }, $push: { usersLiked: req.body.userId }
+        }
+
+    } else if (req.body.action === 'removeLike') {
+        updateObject = {
+            $inc: { likes: -1 }, $pull: { usersLiked: req.body.userId }
+        }
+
+    } else if (req.body.action === 'addDislike') {
+        updateObject = {
+            $inc: { dislikes: 1 }, $push: { usersDisliked: req.body.userId }
+        }
+
+    } else {
+        updateObject = {
+            $inc: { dislikes: -1 }, $pull: { usersDisliked: req.body.userId }
+        }
+    }
+
+    Sauce.updateOne({ _id: req.params.id }, updateObject)
+        .then(() => res.status(200).json({ message: 'Vote done.' }))
         .catch(error => res.status(400).json({ error }));
 };
 
@@ -74,16 +91,16 @@ exports.modifySauce = (req, res, next) => {
 
 exports.deleteSauce = (req, res, next) => {
     Sauce.findOne({ _id: req.params.id })
-      .then(sauce => {
-        const filename = sauce.imageUrl.split('/images/')[1];
-        fs.unlink(`images/${filename}`, () => {
-          Sauce.deleteOne({ _id: req.params.id })
-            .then(() => res.status(200).json({ message: 'Objet supprimé !'}))
-            .catch(error => res.status(400).json({ error }));
-        });
-      })
-      .catch(error => res.status(500).json({ error }));
-  };
+        .then(sauce => {
+            const filename = sauce.imageUrl.split('/images/')[1];
+            fs.unlink(`images/${filename}`, () => {
+                Sauce.deleteOne({ _id: req.params.id })
+                    .then(() => res.status(200).json({ message: 'Objet supprimé !' }))
+                    .catch(error => res.status(400).json({ error }));
+            });
+        })
+        .catch(error => res.status(500).json({ error }));
+};
 
 // Je crée la route GET : nous utilisons la méthode find() dans notre modèle Mongoose afin de renvoyer un tableau contenant tous les sauces dans notre base de données.
 
