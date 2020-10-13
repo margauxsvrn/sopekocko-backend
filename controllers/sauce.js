@@ -1,18 +1,22 @@
 const Sauce = require('../models/Sauce');
 const fs = require('fs'); // fs signifie « file system » (soit « système de fichiers » en français). Il nous donne accès aux fonctions qui nous permettent de modifier le système de fichiers, y compris aux fonctions permettant de supprimer les fichiers.
-
+const xss = require('xss');
 
 // Pour ajouter un fichier à la requête, le front-end doit envoyer les données de la requête sous la forme form-data, et non sous forme de JSON. 
 // Le corps de la requête contient une chaîne sauce , qui est simplement un objet sauce converti en chaîne. 
 // Nous devons donc l'analyser à l'aide de JSON.parse() pour obtenir un objet utilisable.
 
-// Nous devons également résoudre l'URL complète de notre image, car req.file.filename ne contient que le segment filename . 
+// Nous devons également résoudre l'URL complète de notre image, car req.file.filename ne contient que le segment filename. 
 // Nous utilisons req.protocol pour obtenir le premier segment (dans notre cas 'http' ). 
 // Nous ajoutons '://' , puis utilisons req.get('host') pour résoudre l'hôte du serveur (ici, 'localhost:3000' ). 
 // Nous ajoutons finalement '/images/' et le nom de fichier pour compléter notre URL.
 
 exports.createSauce = (req, res, next) => {
     const sauceObject = JSON.parse(req.body.sauce);
+    sauceObject.name = xss(sauceObject.name);
+    sauceObject.manufacturer = xss(sauceObject.manufacturer);
+    sauceObject.description = xss(sauceObject.description);
+    sauceObject.mainPepper = xss(sauceObject.mainPepper);
     delete sauceObject._id;
     const sauce = new Sauce({
         ...sauceObject, // L'opérateur spread ... est utilisé pour faire une copie de tous les éléments de sauceObject
@@ -76,6 +80,10 @@ exports.modifySauce = (req, res, next) => {
             ...JSON.parse(req.body.sauce),
             imageUrl: `${req.protocol}://${req.get('host')}/images/${req.file.filename}`
         } : { ...req.body };
+        sauceObject.name = xss(sauceObject.name);
+        sauceObject.manufacturer = xss(sauceObject.manufacturer);
+        sauceObject.description = xss(sauceObject.description);
+        sauceObject.mainPepper = xss(sauceObject.mainPepper);
     Sauce.updateOne({ _id: req.params.id }, { ...sauceObject, _id: req.params.id }) // méthode updateOne() dans le modèle sauce . Permet de mettre à jour le sauce qui correspond à l'objet que nous passons comme premier argument. Nous utilisons aussi le paramètre id passé dans la demande et le remplaçons par le sauce passé comme second argument.
         .then(() => res.status(200).json({ message: 'Objet modifié !' }))
         .catch(error => res.status(400).json({ error }));
