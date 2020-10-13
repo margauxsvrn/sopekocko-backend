@@ -24,10 +24,10 @@ mongoose.connect('mongodb+srv://' + process.env.DB_USER + ':' + process.env.DB_P
     .catch(() => console.log('Connexion à MongoDB échoué !'));
 
 
-// Je donne l'autorisation à tout le monde d'accéder à l'API
+// Je donne l'autorisation à accéder à l'API
 
 app.use((req, res, next) => {
-    res.setHeader('Access-Control-Allow-Origin', '*'); // accéder à notre API depuis n'importe quelle origine
+    res.setHeader('Access-Control-Allow-Origin', 'http://localhost:4200'); // accéder à notre API depuis le port 4200
     res.setHeader('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content, Accept, Content-Type, Authorization'); // ajouter les headers mentionnés aux requêtes envoyées vers notre API
     res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, PATCH, OPTIONS'); // envoyer des requêtes avec les méthodes mentionnées
     next();
