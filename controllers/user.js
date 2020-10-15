@@ -1,7 +1,7 @@
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const User = require('../models/User');
-const xss = require('xss');
+
 // Nous appelons la fonction de hachage de bcrypt dans notre mot de passe et lui demandons de « saler » le mot de passe 10 fois. Plus la valeur est élevée, plus l'exécution de la fonction sera longue, et plus le hachage sera sécurisé. 
 
 // Il s'agit d'une fonction asynchrone qui renvoie une Promise dans laquelle nous recevons le hash généré
@@ -16,7 +16,6 @@ exports.signup = (req, res, next) => {
                 email: req.body.email,
                 password: hash
             });
-            req.body.email = xss(req.body.email);
             user.save((err, user) => {
                 if (err) {
                     return res.status(500).json({ error: err });

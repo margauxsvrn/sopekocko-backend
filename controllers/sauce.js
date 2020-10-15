@@ -1,6 +1,6 @@
 const Sauce = require('../models/Sauce');
-const fs = require('fs'); // fs signifie « file system » (soit « système de fichiers » en français). Il nous donne accès aux fonctions qui nous permettent de modifier le système de fichiers, y compris aux fonctions permettant de supprimer les fichiers.
-const xss = require('xss');
+const fs = require('fs'); // « file system » Donne accès aux fonctions qui nous permettent de modifier le système de fichiers, y compris aux fonctions permettant de supprimer les fichiers.
+
 
 // Pour ajouter un fichier à la requête, le front-end doit envoyer les données de la requête sous la forme form-data, et non sous forme de JSON. 
 // Le corps de la requête contient une chaîne sauce , qui est simplement un objet sauce converti en chaîne. 
@@ -11,12 +11,9 @@ const xss = require('xss');
 // Nous ajoutons '://' , puis utilisons req.get('host') pour résoudre l'hôte du serveur (ici, 'localhost:3000' ). 
 // Nous ajoutons finalement '/images/' et le nom de fichier pour compléter notre URL.
 
+// Méthode POST
 exports.createSauce = (req, res, next) => {
     const sauceObject = JSON.parse(req.body.sauce);
-    sauceObject.name = xss(sauceObject.name);
-    sauceObject.manufacturer = xss(sauceObject.manufacturer);
-    sauceObject.description = xss(sauceObject.description);
-    sauceObject.mainPepper = xss(sauceObject.mainPepper);
     delete sauceObject._id;
     const sauce = new Sauce({
         ...sauceObject, // L'opérateur spread ... est utilisé pour faire une copie de tous les éléments de sauceObject
@@ -28,22 +25,21 @@ exports.createSauce = (req, res, next) => {
 };
 
 
-// // Méthode POST pour liker ou disliker
-
+// Méthode POST pour liker ou disliker
 exports.definedStatusSauce = (req, res, next) => {
     let updateObject;
 
-    if (req.body.action === 'addLike') {
+    if (req.body.like === 1) {
         updateObject = {
             $inc: { likes: 1 }, $push: { usersLiked: req.body.userId }
         }
 
-    } else if (req.body.action === 'removeLike') {
+    } else if (req.body.like === 0) {
         updateObject = {
             $inc: { likes: -1 }, $pull: { usersLiked: req.body.userId }
         }
 
-    } else if (req.body.action === 'addDislike') {
+    } else if (req.body.like === -1) {
         updateObject = {
             $inc: { dislikes: 1 }, $push: { usersDisliked: req.body.userId }
         }
@@ -80,11 +76,7 @@ exports.modifySauce = (req, res, next) => {
             ...JSON.parse(req.body.sauce),
             imageUrl: `${req.protocol}://${req.get('host')}/images/${req.file.filename}`
         } : { ...req.body };
-        sauceObject.name = xss(sauceObject.name);
-        sauceObject.manufacturer = xss(sauceObject.manufacturer);
-        sauceObject.description = xss(sauceObject.description);
-        sauceObject.mainPepper = xss(sauceObject.mainPepper);
-    Sauce.updateOne({ _id: req.params.id }, { ...sauceObject, _id: req.params.id }) // méthode updateOne() dans le modèle sauce . Permet de mettre à jour le sauce qui correspond à l'objet que nous passons comme premier argument. Nous utilisons aussi le paramètre id passé dans la demande et le remplaçons par le sauce passé comme second argument.
+    Sauce.updateOne({ _id: req.params.id }, { ...sauceObject, _id: req.params.id }) // méthode updateOne() dans le modèle sauce . Permet de mettre à jour le sauce qui correspond à l'objet que nous passons comme premier argument. Nous utilisons aussi le paramètre id passé dans la demande et le remplaçons par la sauce passé comme second argument.
         .then(() => res.status(200).json({ message: 'Objet modifié !' }))
         .catch(error => res.status(400).json({ error }));
 };

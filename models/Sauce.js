@@ -17,11 +17,6 @@ const sauceSchema = mongoose.Schema({
 });
 
 
-// usersLiked: [string] — tableau d'identifiants d'utilisateurs ayant aimé la sauce
-// ;
-// usersDisliked: [string] — tableau d'identifiants d'utilisateurs n'ayant pas aimé
-// la sauce.
-
 // Nous exportons ce schéma en tant que modèle Mongoose appelé « Sauce », le rendant par là même disponible pour notre application Express.
 
 module.exports = mongoose.model('Sauce', sauceSchema);
